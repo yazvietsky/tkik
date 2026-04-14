@@ -3,18 +3,17 @@ Teoria Kompilacji i Kompilatory
 # Język implementacji
 C++
 # Tabela tokenów
-| Kod Tokenu | Opis                                                       | Przykład      |   |   |
-|------------|------------------------------------------------------------|---------------|---|---|
-| NUMBER     | Liczba całkowita (ciąg cyfr)                               | 456, 78       |   |   |
-| ID         | Identyfikator (zaczyna się od litery, może zawierać cyfry) | zmienna123, x |   |   |
-| PLUS       | Operator dodawania                                         | +             |   |   |
-| MINUS      | Operator odejmowania                                       | -             |   |   |
-| MULTIPLY   | Operator mnożenia                                          | *             |   |   |
-| DIVIDE     | Operator dzielenia                                         | /             |   |   |
-| LPAREN     | Nawias otwierający                                         | (             |   |   |
-| RPAREN     | Nawias zamykający                                          | )             |   |   |
-| EOF_       | Znacznik końca strumienia danych (End Of File)             | \0            |   |   |
-
+| Nazwa Tokenu | Opis | Przykład |
+| :--- | :--- | :--- |
+| **KEYWORD** | Słowa kluczowe języka | `int`, `if`, `else`, `while`, `return` |
+| **ID** | Nazwy zmiennych i funkcji | `mojaZmienna`, `licznik1` |
+| **NUMBER** | Wartości całkowite | `42`, `1024` |
+| **STRING** | Ciągi znaków w cudzysłowach | `"Hello World"` |
+| **COMMENT** | Komentarze jednolinijkowe | `// to jest komentarz` |
+| **OPERATORS** | Operatory arytmetyczne i logiczne | `+`, `-`, `*`, `/`, `=`, `==`, `<`, `>` |
+| **PUNCTUATION** | Interpunkcja i blokowanie kodu | `(`, `)`, `{`, `}`, `;` |
+| **WHITESPACE** | Znaki białe (spacje, taby, enter) | `\n`, `\t`, ` ` |
+| **UNKNOWN** | Znaki niezidentyfikowane | `@`, `#`, `$` |
 
 # Skład:
 ## Mateusz:

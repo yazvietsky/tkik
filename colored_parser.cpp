@@ -6,32 +6,37 @@
 
 using namespace std;
 
+// 1. Rozbudowana lista tokenów
 enum TokenCode {
-    NUMBER,
+    KEYWORD,
     ID,
+    NUMBER,
+    STRING,
+    COMMENT,
     PLUS,
     MINUS,
     MULTIPLY,
     DIVIDE,
+    ASSIGN,
+    EQUALS,
+    LESS,
+    GREATER,
     LPAREN,
     RPAREN,
+    LBRACE,
+    RBRACE,
+    SEMICOLON,
     WHITESPACE,
     UNKNOWN,
     EOF_
 };
 
 string names[] = {
-    "NUMBER",
-    "ID",
-    "PLUS",
-    "MINUS",
-    "MULTIPLY",
-    "DIVIDE",
-    "LPAREN",
-    "RPAREN",
-    "WHITESPACE",
-    "UNKNOWN",
-    "EOF_"
+    "KEYWORD", "ID", "NUMBER", "STRING", "COMMENT",
+    "PLUS", "MINUS", "MULTIPLY", "DIVIDE",
+    "ASSIGN", "EQUALS", "LESS", "GREATER",
+    "LPAREN", "RPAREN", "LBRACE", "RBRACE", "SEMICOLON",
+    "WHITESPACE", "UNKNOWN", "EOF_"
 }; 
 
 class Token {
@@ -77,6 +82,7 @@ class Scaner {
             return false; 
         }
 
+        // Białe znaki
         if (isspace(*next)) {
             string ws_value = "";
             while (isspace(*next)) {
@@ -87,16 +93,25 @@ class Scaner {
             return true;
         }
 
-        if (isalpha(*next)) {
+        // Identyfikatory i słowa kluczowe (rozszerzone o znak '_')
+        if (isalpha(*next) || *next == '_') {
             string id_value = "";
-            while (isalnum(*next)) {
+            while (isalnum(*next) || *next == '_') {
                 id_value += *next;
                 next++;
             }
-            exp.push_back(Token(ID, id_value));
+            
+            // Sprawdzanie czy identyfikator to słowo kluczowe
+            if (id_value == "int" || id_value == "if" || id_value == "else" || 
+                id_value == "while" || id_value == "return" || id_value == "string" || id_value == "float" ) {
+                exp.push_back(Token(TokenCode::KEYWORD, id_value));
+            } else {
+                exp.push_back(Token(ID, id_value));
+            }
             return true;
         }
 
+        // Liczby
         if (isdigit(*next)) {
             string value = "";
             while (isdigit(*next)) {
@@ -107,31 +122,61 @@ class Scaner {
             return true;
         }
 
+        // Ciągi znaków (Stringi)
+        if (*next == '"') {
+            string str_val = "\"";
+            next++;
+            while (*next != '"' && *next != '\0') {
+                str_val += *next;
+                next++;
+            }
+            if (*next == '"') {
+                str_val += '"';
+                next++;
+            }
+            exp.push_back(Token(TokenCode::STRING, str_val));
+            return true;
+        }
+
+        // Operatory, komentarze i interpunkcja
         switch (*next) {
-            case '+':
-                exp.push_back(Token(TokenCode::PLUS, "+"));
-                next++;
-                return true;
-            case '-':
-                exp.push_back(Token(TokenCode::MINUS, "-"));
-                next++;
-                return true;
-            case '*':
-                exp.push_back(Token(TokenCode::MULTIPLY, "*"));
-                next++;
-                return true;
+            case '+': exp.push_back(Token(TokenCode::PLUS, "+")); next++; return true;
+            case '-': exp.push_back(Token(TokenCode::MINUS, "-")); next++; return true;
+            case '*': exp.push_back(Token(TokenCode::MULTIPLY, "*")); next++; return true;
             case '/':
-                exp.push_back(Token(TokenCode::DIVIDE, "/"));
-                next++;
+                // Wykrywanie komentarzy jednolinijkowych (//)
+                if (*(next + 1) == '/') {
+                    string comment = "//";
+                    next += 2;
+                    while (*next != '\n' && *next != '\0') {
+                        comment += *next;
+                        next++;
+                    }
+                    exp.push_back(Token(TokenCode::COMMENT, comment));
+                    return true;
+                } else {
+                    exp.push_back(Token(TokenCode::DIVIDE, "/"));
+                    next++;
+                    return true;
+                }
+            case '=':
+                // Wykrywanie operatora przyrównania (==) vs przypisania (=)
+                if (*(next + 1) == '=') {
+                    exp.push_back(Token(TokenCode::EQUALS, "=="));
+                    next += 2;
+                } else {
+                    exp.push_back(Token(TokenCode::ASSIGN, "="));
+                    next++;
+                }
                 return true;
-            case '(':
-                exp.push_back(Token(TokenCode::LPAREN, "("));
-                next++;
-                return true;
-            case ')':
-                exp.push_back(Token(TokenCode::RPAREN, ")"));
-                next++;
-                return true;
+            case '<': exp.push_back(Token(TokenCode::LESS, "<")); next++; return true;
+            case '>': exp.push_back(Token(TokenCode::GREATER, ">")); next++; return true;
+            case '(': exp.push_back(Token(TokenCode::LPAREN, "(")); next++; return true;
+            case ')': exp.push_back(Token(TokenCode::RPAREN, ")")); next++; return true;
+            case '{': exp.push_back(Token(TokenCode::LBRACE, "{")); next++; return true;
+            case '}': exp.push_back(Token(TokenCode::RBRACE, "}")); next++; return true;
+            case ';': exp.push_back(Token(TokenCode::SEMICOLON, ";")); next++; return true;
+            
             default:
                 string unk = "";
                 unk += *next;
@@ -166,13 +211,17 @@ public:
             return;
         }
 
+        // Dodano nowe klasy CSS dla słów kluczowych, stringów, komentarzy i nawiasów
         outFile << "<!DOCTYPE html>\n<html>\n<head>\n"
                 << "<style>\n"
                 << "  body { background-color: #1e1e1e; color: #d4d4d4; font-family: Consolas, monospace; font-size: 16px; padding: 20px; }\n"
+                << "  .keyword { color: #569cd6; font-weight: bold; }\n"
                 << "  .number { color: #b5cea8; }\n"
+                << "  .string { color: #ce9178; }\n"
+                << "  .comment { color: #6a9955; font-style: italic; }\n"
                 << "  .id { color: #9cdcfe; }\n"
                 << "  .operator { color: #c586c0; }\n"
-                << "  .paren { color: #ffd700; }\n"
+                << "  .punctuation { color: #ffd700; }\n"
                 << "  .unknown { color: #f44747; text-decoration: underline; }\n"
                 << "</style>\n"
                 << "</head>\n<body>\n<pre>";
@@ -183,17 +232,26 @@ public:
             string safeValue = escapeHTML(token.getValue());
 
             switch (token.getCode()) {
+                case KEYWORD:
+                    outFile << "<span class=\"keyword\">" << safeValue << "</span>";
+                    break;
                 case NUMBER:
                     outFile << "<span class=\"number\">" << safeValue << "</span>";
+                    break;
+                case STRING:
+                    outFile << "<span class=\"string\">" << safeValue << "</span>";
+                    break;
+                case COMMENT:
+                    outFile << "<span class=\"comment\">" << safeValue << "</span>";
                     break;
                 case ID:
                     outFile << "<span class=\"id\">" << safeValue << "</span>";
                     break;
-                case PLUS: case MINUS: case MULTIPLY: case DIVIDE:
+                case PLUS: case MINUS: case MULTIPLY: case DIVIDE: case ASSIGN: case EQUALS: case LESS: case GREATER:
                     outFile << "<span class=\"operator\">" << safeValue << "</span>";
                     break;
-                case LPAREN: case RPAREN:
-                    outFile << "<span class=\"paren\">" << safeValue << "</span>";
+                case LPAREN: case RPAREN: case LBRACE: case RBRACE: case SEMICOLON:
+                    outFile << "<span class=\"punctuation\">" << safeValue << "</span>";
                     break;
                 case UNKNOWN:
                     outFile << "<span class=\"unknown\">" << safeValue << "</span>";
@@ -220,7 +278,6 @@ int main() {
     if (!inFile.is_open()) {
         cerr << "Nie znaleziono pliku: " << inputFilename << endl;
         return 1;
-
     }
 
     stringstream buffer;

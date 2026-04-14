@@ -1,21 +1,15 @@
-zmiennaGlowca 1024
-drugiSkladnik 256
+// Program sprawdzający warunki
+int glowny_licznik = 0;
+int limit = 10;
 
-    wynikTymczasowy (zmiennaGlowca + drugiSkladnik) * 2
-    
-        wspolczynnik (100 - 25) / 5
-        
-koncoweOdliczenie wynikTymczasowy / wspolczynnik
+while (glowny_licznik < limit) {
+    if (glowny_licznik == 5) {
+        string wiadomosc = "Osiagnieto polowe!";
+    } else {
+        glowny_licznik = glowny_licznik + 1;
+    }
+}
 
-( 15 + 8 ) * ( 100 - 45 ) / ( 2 + 1 )
+return glowny_licznik;
 
-SekcjaTestowaniaRoznychBledowIDziwnychZnakow:
-Tutaj_sprawdzamy_podkreslenia
-@ # $ % ^ & ! ~ ` | \ { } [ ] ; : ' " < > ? , .
-
-    1234567890
-    qwertyuiop
-
-kolejneObliczenia (x + y) * (z - 1) / (a + b)
-
-KoniecPliku 000
+$#@ // Test nierozpoznanych znaków na koniec
